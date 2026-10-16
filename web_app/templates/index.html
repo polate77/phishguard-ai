@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ PhishGuard - AI Phishing Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛡️ PhishGuard</h1>
+            <p class="subtitle">AI-Powered Phishing URL Detector</p>
+        </header>
+
+        <form method="POST" action="/analyze" class="url-form">
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    name="url" 
+                    placeholder="Paste a URL to check (e.g., http://paypal-verify.xyz/login)" 
+                    value="{{ result.url if result else '' }}"
+                    autofocus
+                    required
+                >
+                <button type="submit">🔍 Analyze</button>
+            </div>
+        </form>
+
+        {% if error %}
+        <div class="error-box">
+            ⚠️ {{ error }}
+        </div>
+        {% endif %}
+
+        {% if result %}
+        <div class="result-card {{ 'phishing' if result.verdict == 'PHISHING' else 'safe' }}">
+            <div class="verdict">
+                {% if result.verdict == 'PHISHING' %}
+                    ⚠️ PHISHING DETECTED
+                {% else %}
+                    ✅ SAFE
+                {% endif %}
+            </div>
+            <div class="confidence">
+                Confidence: <strong>{{ result.confidence }}%</strong>
+            </div>
+            
+            <div class="probability-bar">
+                <div class="prob-label">Safe: {{ result.probabilities.safe }}%</div>
+                <div class="prob-track">
+                    <div class="prob-fill safe-fill" style="width: {{ result.probabilities.safe }}%"></div>
+                </div>
+                <div class="prob-label">Phishing: {{ result.probabilities.phishing }}%</div>
+                <div class="prob-track">
+                    <div class="prob-fill phishing-fill" style="width: {{ result.probabilities.phishing }}%"></div>
+                </div>
+            </div>
+
+            {% if result.risk_factors %}
+            <div class="risk-factors">
+                <h3>🚩 Risk Factors Detected:</h3>
+                <ul>
+                    {% for factor in result.risk_factors %}
+                    <li>{{ factor }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% else %}
+            <div class="no-risk">
+                ✅ No significant risk factors detected.
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <footer>
+            <p>Built with ❤️ using Python, scikit-learn, and Flask</p>
+            <p class="disclaimer">⚠️ This tool is for educational purposes. Always verify URLs from official sources.</p>
+        </footer>
+    </div>
+</body>
+</html>
